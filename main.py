@@ -1,7 +1,14 @@
 import logging
-
+import sys
 from app import create_app
 
+
+# Configure the logging level and format
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(message)s",
+    stream=sys.stdout,
+)
 
 app = create_app()
 
