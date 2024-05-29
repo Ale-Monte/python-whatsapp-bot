@@ -1,23 +1,45 @@
-from openai import OpenAI
-from dotenv import find_dotenv, load_dotenv
 import os
+import json
 import time
 import logging
 import shelve
-import json
 from datetime import datetime
-from app.services.functions import available_functions_dict
+from dotenv import find_dotenv, load_dotenv
+from openai import OpenAI
+from app.services.functions import assistant_functions, available_functions_dict
 
 
+# Load environment variables, initialize the OpenAI client with API key, and retrieve the available functions dictionary.
 load_dotenv(find_dotenv())
 OPENAI_API_KEY = os.environ["OPENAI_API_KEY"]
 client = OpenAI(api_key=OPENAI_API_KEY)
-assistant_id = os.environ['OPENAI_ASSISTANT_ID']
 available_functions = available_functions_dict
-current_date = datetime.now().strftime("%Y-%m-%d")
+
+# Define configurations for the AI assistant, including the name, model, and instructions.
+instructions = f"Eres un asistente especializado en ayudar tiendas pequeñas de abarrotes. Habla como una persona de manera amistosa y breve. Da tus respuestas de manera muy concisa y breve, explicando solo los puntos claves cómo en una conversación normal."
+name="Asistente Personal de Abarrotes"
+model="gpt-4o"
 
 # Setup logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
+
+def check_if_assistant_exists(current_date):
+    # Check if there is an existing assistant ID for the given date using shelve.
+    try:
+        with shelve.open("assistants_db") as assistants_shelf:
+            return assistants_shelf.get(current_date, None)
+    except Exception as e:
+        logging.error(f"Error accessing assistants database: {e}")
+        return None
+
+def store_assistant(current_date, assistant_id):
+    # Store a new assistant ID for the given date using shelve.
+    try:
+        with shelve.open("assistants_db", writeback=True) as assistants_shelf:
+            assistants_shelf[current_date] = assistant_id
+    except Exception as e:
+        logging.error(f"Error storing assistant ID in database: {e}")
 
 
 def check_if_thread_exists(wa_id):
@@ -56,12 +78,34 @@ def handle_tool_calls(tool_calls):
             except json.JSONDecodeError:
                 logging.error(f"Invalid JSON arguments for tool call {function_name}")
                 continue
+            except KeyError as e:
+                logging.error(f"Missing function argument: {e}")
+                continue
+            except Exception as e:
+                logging.error(f"Unexpected error during function call: {e}")
+                continue
     return tool_outputs
 
 
-def run_assistant(thread_id, assistant_id, message_body):
+def run_assistant(message_body, thread_id):
+    # Update the current date each time the function runs
+    current_date = datetime.now().strftime("%Y-%m-%d")
+    # Dynamically change the instructions with today's date
+    full_instructions = f"{instructions} La fecha de hoy es {current_date}."
+
     # Add user message to the thread and run the assistant.
     try:
+        assistant_id = check_if_assistant_exists(current_date)
+        if not assistant_id:
+            assistant = client.beta.assistants.create(
+                name=name,
+                model=model,
+                instructions=full_instructions,
+                tools=assistant_functions
+                )
+            assistant_id = assistant.id
+            store_assistant(current_date, assistant_id)
+
         client.beta.threads.messages.create(
             thread_id=thread_id,
             role="user",
@@ -109,4 +153,4 @@ def generate_response(message_body, wa_id):
             logging.error(f"Error creating new thread: {e}")
             return "Failed to initiate conversation."
 
-    return run_assistant(thread_id, assistant_id, message_body)
+    return run_assistant(message_body, thread_id)
