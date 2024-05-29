@@ -1,8 +1,8 @@
-from google_calendar import list_events, search_events, add_event
-from clock import get_current_time
+from app.services.modules.google_calendar import list_events, search_events, add_event
+from app.services.modules.clock import get_current_time
 
 
-g_calendar_functions = [
+google_calendar_functions = [
     {
         "type": "function",
         "function": {
@@ -75,5 +75,5 @@ clock_functions_dict = {
     "get_current_time": get_current_time
 }
 
-assistant_functions = g_calendar_functions + clock_functions
+assistant_functions = google_calendar_functions + clock_functions
 available_functions_dict = google_calendar_functions_dict | clock_functions_dict

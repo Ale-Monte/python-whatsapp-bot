@@ -5,8 +5,8 @@ import time
 import logging
 import shelve
 import json
-import datetime
-from modules.functions import available_functions_dict
+from datetime import datetime
+from app.services.functions import available_functions_dict
 
 
 load_dotenv(find_dotenv())

@@ -1,7 +1,7 @@
 from openai import OpenAI
 import os
 from dotenv import load_dotenv
-from functions import assistant_functions
+from app.services.functions import assistant_functions
 
 # Load environment variables
 load_dotenv()
