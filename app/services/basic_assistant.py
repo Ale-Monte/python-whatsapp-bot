@@ -95,6 +95,7 @@ def run_assistant(message_body, thread_id):
 
     # Add user message to the thread and run the assistant.
     try:
+        logging.info("Creating new assistant as none exists for today's date.")
         assistant_id = check_if_assistant_exists(current_date)
         if not assistant_id:
             assistant = client.beta.assistants.create(
@@ -105,20 +106,24 @@ def run_assistant(message_body, thread_id):
                 )
             assistant_id = assistant.id
             store_assistant(current_date, assistant_id)
+            logging.info(f"New assistant created and stored with ID {assistant_id} for date {current_date}.")
 
         client.beta.threads.messages.create(
             thread_id=thread_id,
             role="user",
             content=message_body,
         )
+        logging.info("User message added to the thread.")
         run = client.beta.threads.runs.create(
             thread_id=thread_id,
             assistant_id=assistant_id,
         )
+        logging.info(f"Assistant run initiated for thread {thread_id}.")
         while run.status not in ['completed', 'requires_action']:
             time.sleep(0.5)
             run = client.beta.threads.runs.retrieve(thread_id=thread_id, run_id=run.id)
         if run.status == 'requires_action':
+            logging.info("Handling required actions for the assistant run.")
             tool_calls = run.required_action.submit_tool_outputs.tool_calls
             tool_outputs = handle_tool_calls(tool_calls)
             client.beta.threads.runs.submit_tool_outputs(

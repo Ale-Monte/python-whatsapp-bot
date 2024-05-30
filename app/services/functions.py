@@ -1,5 +1,5 @@
 from app.services.modules.google_calendar import list_events, search_events, add_event
-from app.services.modules.spotify import play_spotify_selection, control_playback, control_volume, add_song_to_queue
+from app.services.modules.spotify import play_spotify_selection, control_playback, control_volume
 from app.services.modules.clock import get_current_time
 
 
@@ -98,19 +98,6 @@ spotify_functions = [
                 "required": ["action"]
             }
         }
-    }, {
-        "type": "function",
-        "function": {
-            "name": "add_song_to_queue",
-            "description": "Search for a track on Spotify and add it to the playback queue.",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "search_query": {"type": "string", "description": "The search query for the track to add to the queue."}
-                },
-                "required": ["search_query"]
-            }
-        }
     }
 ]
 
@@ -134,8 +121,7 @@ google_calendar_functions_dict = {
 spotify_functions_dict = {
     "play_spotify_selection": play_spotify_selection,
     "control_playback": control_playback,
-    "control_volume": control_volume,
-    "add_song_to_queue": add_song_to_queue,
+    "control_volume": control_volume
 }
 
 clock_functions_dict = { 

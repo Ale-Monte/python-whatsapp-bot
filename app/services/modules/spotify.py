@@ -157,17 +157,3 @@ def control_volume(action, volume_change=20, sp=spotify_client):
     except Exception as e:
         return f"Error adjusting volume: {str(e)}"
     
-
-def add_song_to_queue(search_query, user_market='MX', sp=spotify_client):
-    try:
-        # Search for the track
-        results = sp.search(q=search_query, limit=1, type='track', market=user_market)
-        tracks = results.get('tracks', {}).get('items', [])
-        if tracks:
-            track_uri = tracks[0]['uri']
-            sp.add_to_queue(track_uri)
-            return f"Track '{tracks[0]['name']}' by '{tracks[0]['artists'][0]['name']}' added to queue."
-        else:
-            return "No matching tracks found."
-    except Exception as e:
-        return f"Error adding track to queue: {str(e)}"
