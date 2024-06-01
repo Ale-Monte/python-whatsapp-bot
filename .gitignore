@@ -89,3 +89,6 @@ target/
 
 # Exlcude the database file
 .db
+ 
+# Exclude temporary files pulled from the cloud
+*_temp.csv

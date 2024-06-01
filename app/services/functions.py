@@ -1,6 +1,8 @@
 from app.services.modules.google_calendar import list_events, search_events, add_event
 from app.services.modules.spotify import play_spotify_selection, control_playback, control_volume
+from app.services.modules.unit_price import get_unit_price_of_product
 from app.services.modules.clock import get_current_time
+from app.services.modules.recomendacion_grafos import recommend_products_for
 
 
 google_calendar_functions = [
@@ -50,6 +52,43 @@ google_calendar_functions = [
                     "description": {"type": "string", "description": "Description of the event."}
                 },
                 "required": ["title", "date"]
+            }
+        }
+    }
+]
+
+unit_price_functions = [
+    {
+        "type": "function",
+        "function": {
+            "name": "get_unit_price_of_product",
+            "description": "Retrieves unit prices of a specified product per store.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "producto": {"type": "string", "description": "Primary product category or product type, e.g. 'Refresco', 'Papas', 'Pañales', 'Leche', 'Rastrillos'."},
+                    "marca": {"type": "string", "description": "The brand of the product, e.g. 'Coca Cola', 'Fanta', 'Sabritas', 'Huggies', 'Gillette'."},
+                    "empaque": {"type": "string", "description": "Specifies the packaging type of the product, e.g. '600 ml', '1 l', '12 piezas', '150 gr'"}
+                },
+                "required": ["producto"]
+            }
+        }
+    }
+]
+
+recommendation_functions = [
+    {
+        "type": "function",
+        "function": {
+            "name": "recommend_products_for",
+            "description": "Provides product recommendations by identifying products that are frequently purchased together with the queried product.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "query": {"type": "string","description": "The product name or category to search for its related products."},
+                    "top_n": {"type": "integer", "description": "The number of top connected products to return based on their frequency of being bought together.", "default": 5}
+                },
+                "required": ["query"]
             }
         }
     }
@@ -118,6 +157,14 @@ google_calendar_functions_dict = {
     "add_event": add_event
 }
 
+unit_price_functions_dict = {
+    "get_unit_price_of_product": get_unit_price_of_product
+}
+
+recommendation_functions_dict = {
+    "recommend_products_for": recommend_products_for
+}
+
 spotify_functions_dict = {
     "play_spotify_selection": play_spotify_selection,
     "control_playback": control_playback,
@@ -128,5 +175,5 @@ clock_functions_dict = {
     "get_current_time": get_current_time
 }
 
-assistant_functions = google_calendar_functions + spotify_functions + clock_functions
-available_functions_dict = google_calendar_functions_dict | spotify_functions_dict | clock_functions_dict
+assistant_functions = google_calendar_functions + unit_price_functions + recommendation_functions + spotify_functions + clock_functions
+available_functions_dict = google_calendar_functions_dict | unit_price_functions_dict |  recommendation_functions_dict | spotify_functions_dict | clock_functions_dict
