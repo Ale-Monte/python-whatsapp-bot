@@ -4,8 +4,8 @@ import time
 import logging
 import shelve
 from datetime import datetime
-from dotenv import find_dotenv, load_dotenv
 from openai import OpenAI
+from dotenv import find_dotenv, load_dotenv
 from app.services.functions import assistant_functions, available_functions_dict
 
 
