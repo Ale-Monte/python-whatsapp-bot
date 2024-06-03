@@ -13,3 +13,4 @@ pandas
 azure-storage-blob
 networkx
 scipy
+openpyxl

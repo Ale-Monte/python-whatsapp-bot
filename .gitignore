@@ -92,3 +92,7 @@ target/
  
 # Exclude temporary files pulled from the cloud
 *_temp.csv
+
+#Exclude the creation of the income files
+create_income_statement_visual.py
+create_income_statement_dataframe.py

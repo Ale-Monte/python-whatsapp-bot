@@ -3,6 +3,8 @@ from app.services.modules.spotify import play_spotify_selection, control_playbac
 from app.services.modules.unit_price import get_unit_price_of_product
 from app.services.modules.clock import get_current_time
 from app.services.modules.recomendacion_grafos import recommend_products_for
+from app.services.modules.get_financial_metric import get_financial_metric
+from app.services.modules.send_income_statement import get_income_statement_link
 
 
 google_calendar_functions = [
@@ -66,9 +68,9 @@ unit_price_functions = [
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "producto": {"type": "string", "description": "Primary product category or product type, e.g. 'Refresco', 'Papas', 'Pañales', 'Leche', 'Rastrillos'."},
-                    "marca": {"type": "string", "description": "The brand of the product, e.g. 'Coca Cola', 'Fanta', 'Sabritas', 'Huggies', 'Gillette'."},
-                    "empaque": {"type": "string", "description": "Specifies the packaging type of the product, e.g. '600 ml', '1 l', '12 piezas', '150 gr'"}
+                    "producto": {"type": "string", "description": "Single word that describes the primary product category or product type, e.g. 'Refresco', 'Papas', 'Pañales', 'Leche', 'Rastrillos'."},
+                    "marca": {"type": "string", "description": "Optional. The brand of the product, e.g. 'Coca Cola', 'Fanta', 'Sabritas', 'Huggies', 'Gillette'."},
+                    "empaque": {"type": "string", "description": "Optional. Specifies the packaging type of the product, e.g. '600 ml', '1 l', '12 piezas', '150 gr'"}
                 },
                 "required": ["producto"]
             }
@@ -93,6 +95,37 @@ recommendation_functions = [
         }
     }
 ]
+
+get_financial_metric_functions = [
+    {
+        "type": "function",
+        "function": {
+            "name": "get_financial_metric",
+            "description": "Retrieves a specific financial metric for a given year and optionally a month from the store's income statement.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "financial_metric": {"type": "string", "description": "The name of the financial metric to retrieve.", "enum": ["Ventas", "Costo", "Utilidad", "Margen de Utilidad (%)", "Crecimiento de Ventas (%)", "Crecimiento de Utilidad (%)"]},
+                    "year": {"type": "integer", "description": "The year for which the financial metric is needed. (YYYY)"},
+                    "month": {"type": "string", "description": "Optional. The specific month for which the financial metric is needed.", "enum": ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"], "default": None}
+                },
+                "required": ["financial_metric", "year"]
+            }
+        }
+    }
+]
+
+
+send_income_statement_functions = [
+    {
+        "type": "function",
+        "function": {
+            "name": "get_income_statement_link",
+            "description": "Returns the Google Sheets file link of the store's income statement/balance general."
+        }
+    }
+]
+
 
 spotify_functions = [
     {
@@ -145,7 +178,7 @@ clock_functions = [
         "type": "function",
         "function": {
             "name": "get_current_time",
-            "description": "Retrieves the current system time. Read in 12hr format",
+            "description": "Retrieves the current system time. Read in 12hr format"
         }
     }
 ]
@@ -165,6 +198,14 @@ recommendation_functions_dict = {
     "recommend_products_for": recommend_products_for
 }
 
+get_financial_metric_functions_dict = {
+    "get_financial_metric": get_financial_metric
+}
+
+send_income_statement_functions_dict = {
+    "get_income_statement_link": get_income_statement_link
+}
+
 spotify_functions_dict = {
     "play_spotify_selection": play_spotify_selection,
     "control_playback": control_playback,
@@ -175,5 +216,5 @@ clock_functions_dict = {
     "get_current_time": get_current_time
 }
 
-assistant_functions = google_calendar_functions + unit_price_functions + recommendation_functions + spotify_functions + clock_functions
-available_functions_dict = google_calendar_functions_dict | unit_price_functions_dict |  recommendation_functions_dict | spotify_functions_dict | clock_functions_dict
+assistant_functions = google_calendar_functions + unit_price_functions + recommendation_functions + get_financial_metric_functions + send_income_statement_functions + spotify_functions + clock_functions
+available_functions_dict = google_calendar_functions_dict | unit_price_functions_dict |  recommendation_functions_dict | get_financial_metric_functions_dict | send_income_statement_functions_dict | spotify_functions_dict | clock_functions_dict
