@@ -81,5 +81,3 @@ def recommend_products_for(query, top_n=5):
     result_str += "\n".join([f"{prod}: {round(score, 2)}%" for prod, score in top_products_normalized])
     
     return result_str
-
-print(recommend_products_for('vegetales'))

@@ -43,7 +43,7 @@ google_calendar_functions = [
         "type": "function",
         "function": {
             "name": "add_event",
-            "description": "Add a new event to the Google Calendar.",
+            "description": "Add a new event to the Google Calendar. Use corresponding emojis like: 🗓️",
             "parameters": {
                 "type": "object",
                 "properties": {
@@ -66,13 +66,13 @@ unit_price_functions = [
         "type": "function",
         "function": {
             "name": "get_unit_price_of_product",
-            "description": "Retrieves unit prices of a specified product per store.",
+            "description": "Retrieves unit prices of a specified product per store. Mention the prices come from PROFECO.",
             "parameters": {
                 "type": "object",
                 "properties": {
                     "producto": {"type": "string", "description": "Single word that describes the primary product category or product type, e.g. 'Refresco', 'Papas', 'Pañales', 'Leche', 'Rastrillos'."},
                     "marca": {"type": "string", "description": "The brand of the product, e.g. 'Coca Cola', 'Fanta', 'Sabritas', 'Huggies', 'Gillette'."},
-                    "empaque": {"type": "string", "description": "Specifies the packaging type of the product, e.g. '600 ml', '1 l', '12 piezas', '150 gr'"}
+                    "empaque": {"type": "string", "description": "Specifies the packaging type of the product, e.g. '600 ml', '1 l', '12 piezas', '150 gr', 'Paketaxo'"}
                 },
                 "required": ["producto"]
             }
@@ -85,12 +85,12 @@ recommendation_functions = [
         "type": "function",
         "function": {
             "name": "recommend_products_for",
-            "description": "Provides product recommendations by identifying products that are frequently purchased together with the queried product.",
+            "description": "Provides product recommendations by identifying products that are frequently purchased together with the queried product. Tell the user the strength of the connection of the products.",
             "parameters": {
                 "type": "object",
                 "properties": {
                     "query": {"type": "string","description": "The product name or category to search for its related products."},
-                    "top_n": {"type": "integer", "description": "The number of top connected products to return based on their frequency of being bought together.", "default": 5}
+                    "top_n": {"type": "integer", "description": "Optional. The number of top connected products to return based on their frequency of being bought together.", "default": 5}
                 },
                 "required": ["query"]
             }
@@ -117,13 +117,12 @@ get_financial_metric_functions = [
     }
 ]
 
-
 send_income_statement_functions = [
     {
         "type": "function",
         "function": {
             "name": "get_income_statement_link",
-            "description": "Returns the Google Sheets file link of the store's income statement/balance general."
+            "description": "Returns the Google Sheets file link of the store's income statement/balance general. Use this emoji: 📑"
         }
     }
 ]
@@ -148,7 +147,7 @@ predict_sales_functions = [
         "type": "function",
         "function": {
             "name": "predict_inventory_depletion",
-            "description": "Predict when the inventory of a specified product will deplete to a specified threshold level.",
+            "description": "Predict when the inventory of a specified product will deplete to a specified threshold level. Ask the user if they want to add a purchase reminder",
             "parameters": {
                 "type": "object",
                 "properties": {
@@ -166,7 +165,7 @@ inventory_management_functions = [
         "type": "function",
         "function": {
             "name": "calculate_inventory_metrics",
-            "description": "Calculate the Economic Order Quantity (EOQ) and reorder point (ROP) for a specified product to determine how much to buy and when to buy it.",
+            "description": "Calculate the Economic Order Quantity (EOQ) and reorder point (ROP) for a specified product to determine how much to buy and when to buy it. Tell the user you used EOQ and ROP.",
             "parameters": {
                 "type": "object",
                 "properties": {
