@@ -14,3 +14,4 @@ azure-storage-blob
 networkx
 scipy
 openpyxl
+statsmodels
