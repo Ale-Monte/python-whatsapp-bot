@@ -5,6 +5,8 @@ from app.services.modules.clock import get_current_time
 from app.services.modules.recomendacion_grafos import recommend_products_for
 from app.services.modules.get_financial_metric import get_financial_metric
 from app.services.modules.send_income_statement import get_income_statement_link
+from app.services.modules.predict_sales import forecast_sales, predict_inventory_depletion
+from app.services.modules.inventory_management import calculate_inventory_metrics
 
 
 google_calendar_functions = [
@@ -69,8 +71,8 @@ unit_price_functions = [
                 "type": "object",
                 "properties": {
                     "producto": {"type": "string", "description": "Single word that describes the primary product category or product type, e.g. 'Refresco', 'Papas', 'Pañales', 'Leche', 'Rastrillos'."},
-                    "marca": {"type": "string", "description": "Optional. The brand of the product, e.g. 'Coca Cola', 'Fanta', 'Sabritas', 'Huggies', 'Gillette'."},
-                    "empaque": {"type": "string", "description": "Optional. Specifies the packaging type of the product, e.g. '600 ml', '1 l', '12 piezas', '150 gr'"}
+                    "marca": {"type": "string", "description": "The brand of the product, e.g. 'Coca Cola', 'Fanta', 'Sabritas', 'Huggies', 'Gillette'."},
+                    "empaque": {"type": "string", "description": "Specifies the packaging type of the product, e.g. '600 ml', '1 l', '12 piezas', '150 gr'"}
                 },
                 "required": ["producto"]
             }
@@ -126,6 +128,55 @@ send_income_statement_functions = [
     }
 ]
 
+predict_sales_functions = [
+    {
+        "type": "function",
+        "function": {
+            "name": "forecast_sales",
+            "description": "Forecast sales for a specified product over a given number of days.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "product": {"type": "string", "description": "Name of the product for which sales are to be forecasted."},
+                    "n_days": {"type": "integer", "description": "Number of days into the future for which to forecast sales."}
+                },
+                "required": ["product", "n_days"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "predict_inventory_depletion",
+            "description": "Predict when the inventory of a specified product will deplete to a specified threshold level.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "product": {"type": "string", "description": "Name of the product for which inventory depletion is to be predicted."},
+                    "threshold_inventory": {"type": "integer", "description": "Inventory level threshold below which the user should consider replenishing the product."}
+                },
+                "required": ["product", "threshold_inventory"]
+            }
+        }
+    }
+]
+
+inventory_management_functions = [
+    {
+        "type": "function",
+        "function": {
+            "name": "calculate_inventory_metrics",
+            "description": "Calculate the Economic Order Quantity (EOQ) and reorder point (ROP) for a specified product to determine how much to buy and when to buy it.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "product_name": {"type": "string", "description": "Name of the product for which inventory metrics are to be calculated."}
+                },
+                "required": ["product_name"]
+            }
+        }
+    }
+]
 
 spotify_functions = [
     {
@@ -206,6 +257,16 @@ send_income_statement_functions_dict = {
     "get_income_statement_link": get_income_statement_link
 }
 
+predict_sales_functions_dict = {
+    "forecast_sales": forecast_sales,
+    "predict_inventory_depletion": predict_inventory_depletion
+
+}
+
+inventory_management_functions_dict = {
+    "calculate_inventory_metrics": calculate_inventory_metrics
+}
+
 spotify_functions_dict = {
     "play_spotify_selection": play_spotify_selection,
     "control_playback": control_playback,
@@ -216,5 +277,5 @@ clock_functions_dict = {
     "get_current_time": get_current_time
 }
 
-assistant_functions = google_calendar_functions + unit_price_functions + recommendation_functions + get_financial_metric_functions + send_income_statement_functions + spotify_functions + clock_functions
-available_functions_dict = google_calendar_functions_dict | unit_price_functions_dict |  recommendation_functions_dict | get_financial_metric_functions_dict | send_income_statement_functions_dict | spotify_functions_dict | clock_functions_dict
+assistant_functions = google_calendar_functions + unit_price_functions + recommendation_functions + get_financial_metric_functions + send_income_statement_functions + predict_sales_functions + inventory_management_functions + spotify_functions + clock_functions
+available_functions_dict = google_calendar_functions_dict | unit_price_functions_dict |  recommendation_functions_dict | get_financial_metric_functions_dict | send_income_statement_functions_dict | predict_sales_functions_dict | inventory_management_functions_dict | spotify_functions_dict | clock_functions_dict
