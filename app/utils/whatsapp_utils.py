@@ -49,6 +49,21 @@ def send_message(data):
         # Process the response as normal
         log_http_response(response)
         return response
+    
+
+def get_media_url(media_id):
+    url = f"https://graph.facebook.com/v20.0/{media_id}/"
+    headers = {
+        "Authorization": f"Bearer {current_app.config['ACCESS_TOKEN']}"
+    }
+    
+    response = requests.get(url, headers=headers)
+    if response.status_code == 200:
+        media_data = response.json()
+        return media_data.get('url')
+    else:
+        logging.error(f"Failed to retrieve media URL: {response.text}")
+        return None
 
 
 def process_text_for_whatsapp(text):
@@ -87,23 +102,20 @@ def process_whatsapp_message(body):
 def process_image_message(body):
     message = body["entry"][0]["changes"][0]["value"]["messages"][0]
     image_info = message.get("image", {})
-
-    # Log all available image information
-    logging.info(f"Image info: {image_info}")
-
-    # Extract the image ID and include it in the response if available
     image_id = image_info.get('id')
+
     if image_id:
-        # If image ID is present, prepare a response acknowledging receipt of the image
-        response_text = f"Image received with ID: {image_id}"
-        response_text = process_text_for_whatsapp(response_text)
-        
-        # Preparing and sending the message back to WhatsApp
-        data = get_text_message_input(current_app.config["RECIPIENT_WAID"], response_text)
-        send_message(data)
-        logging.info(f"Processed image with ID: {image_id}")
+        image_url = get_media_url(image_id)
+        if image_url:
+            response_text = f"Image URL: {image_url}"
+            response_text = process_text_for_whatsapp(response_text)
+
+            # Preparing and sending the message back to WhatsApp
+            data = get_text_message_input(current_app.config["RECIPIENT_WAID"], response_text)
+            send_message(data)
+        else:
+            logging.error("Image URL could not be retrieved.")
     else:
-        # Log an error if the ID is not found
         logging.error("Image ID not found in the message.")
 
 

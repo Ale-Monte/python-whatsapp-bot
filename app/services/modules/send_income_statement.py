@@ -101,9 +101,3 @@ def get_income_statement_link():
     except Exception as error:
         # Handle other possible exceptions
         return f"An unexpected error occurred: {str(error)}"
-
-# Path to your Excel file
-
-# Upload and convert the file, and retrieve the web view link
-google_sheet_link = get_income_statement_link()
-print(google_sheet_link)
