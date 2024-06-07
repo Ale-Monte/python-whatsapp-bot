@@ -84,6 +84,19 @@ def process_whatsapp_message(body):
     send_message(data)
 
 
+def process_image_message(body):
+    message = body["entry"][0]["changes"][0]["value"]["messages"][0]
+    image_url = message["image"]["url"]
+
+    # Call the function to analyze the image
+    response_text = f"Image Recieved: {image_url}"
+    response_text = process_text_for_whatsapp(response_text)
+
+    # Preparing and sending the message back to WhatsApp
+    data = get_text_message_input(current_app.config["RECIPIENT_WAID"], response_text)
+    send_message(data)
+
+
 def is_valid_whatsapp_message(body):
     """
     Check if the incoming webhook event has a valid WhatsApp message structure.

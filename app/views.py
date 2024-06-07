@@ -6,6 +6,7 @@ from flask import Blueprint, request, jsonify, current_app
 from .decorators.security import signature_required
 from .utils.whatsapp_utils import (
     process_whatsapp_message,
+    process_image_message,
     is_valid_whatsapp_message,
 )
 
@@ -41,11 +42,15 @@ def handle_message():
 
     try:
         if is_valid_whatsapp_message(body):
-            response = process_whatsapp_message(body)
-            logging.info(f"Sending response: {response}")
+            message = body["entry"][0]["changes"][0]["value"]["messages"][0]
+            if 'text' in message:
+                process_whatsapp_message(body)
+            elif 'image' in message:
+                process_image_message(body)
+            else:
+                logging.info("Unsupported message type")
             return jsonify({"status": "ok"}), 200
         else:
-            # if the request is not a WhatsApp API event, return an error
             return (
                 jsonify({"status": "error", "message": "Not a WhatsApp API event"}),
                 404,
