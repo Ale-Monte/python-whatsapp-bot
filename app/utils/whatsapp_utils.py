@@ -86,15 +86,24 @@ def process_whatsapp_message(body):
 
 def process_image_message(body):
     message = body["entry"][0]["changes"][0]["value"]["messages"][0]
-    image_url = message["image"]["url"]
+    image_info = message.get("image", {})
+    
+    # Log the content of image_info to inspect what keys and values it contains
+    logging.info(f"Image info: {image_info}")
 
-    # Call the function to analyze the image
-    response_text = f"Image Recieved: {image_url}"
-    response_text = process_text_for_whatsapp(response_text)
+    image_url = image_info.get("url")
 
-    # Preparing and sending the message back to WhatsApp
-    data = get_text_message_input(current_app.config["RECIPIENT_WAID"], response_text)
-    send_message(data)
+    if image_url:
+        # Call the function to analyze the image
+        response_text = f"Image Received: {image_url}"
+        response_text = process_text_for_whatsapp(response_text)
+
+        # Preparing and sending the message back to WhatsApp
+        data = get_text_message_input(current_app.config["RECIPIENT_WAID"], response_text)
+        send_message(data)
+    else:
+        # Log an error if the URL is missing
+        logging.error("Image URL not found in the message.")
 
 
 def is_valid_whatsapp_message(body):
