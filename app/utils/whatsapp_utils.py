@@ -3,7 +3,10 @@ from flask import current_app, jsonify
 import json
 import requests
 import re
+import os
+import base64
 from app.services.basic_assistant import generate_response
+from app.services.image_assistant import generate_image_response
 
 
 def log_http_response(response):
@@ -49,8 +52,8 @@ def send_message(data):
         # Process the response as normal
         log_http_response(response)
         return response
-    
 
+    
 def get_media_url(media_id):
     url = f"https://graph.facebook.com/v20.0/{media_id}/"
     headers = {
@@ -63,6 +66,33 @@ def get_media_url(media_id):
         return media_data.get('url')
     else:
         logging.error(f"Failed to retrieve media URL: {response.text}")
+        return None
+
+
+def download_and_encode_image(image_url, image_id):
+    path_to_save = f"{image_id}.jpg"  # Temporary file path
+
+    headers = {
+        "Authorization": f"Bearer {current_app.config['ACCESS_TOKEN']}"
+    }
+
+    # Download the image with the appropriate headers
+    response = requests.get(image_url, headers=headers, stream=True)
+    if response.status_code == 200:
+        with open(path_to_save, 'wb') as f:
+            for chunk in response.iter_content(chunk_size=8192):
+                f.write(chunk)
+
+        # Once the download is complete, encode the image
+        try:
+            with open(path_to_save, "rb") as image_file:
+                base64_image = base64.b64encode(image_file.read()).decode('utf-8')
+            return base64_image
+        finally:
+            # Delete the image after encoding to clean up
+            os.remove(path_to_save)
+    else:
+        logging.error(f"Failed to download the image: {response.text}")
         return None
 
 
@@ -101,18 +131,23 @@ def process_whatsapp_message(body):
 
 def process_image_message(body):
     message = body["entry"][0]["changes"][0]["value"]["messages"][0]
+    wa_id = body["entry"][0]["changes"][0]["value"]["contacts"][0]["wa_id"]
     image_info = message.get("image", {})
     image_id = image_info.get('id')
 
     if image_id:
-        image_url = get_media_url(image_id)
+        image_url = get_media_url(image_id)  # Assume get_media_url returns the URL and MIME type
         if image_url:
-            response_text = f"Image URL: {image_url}"
-            response_text = process_text_for_whatsapp(response_text)
+            base64_image = download_and_encode_image(image_url, image_id)
+            if base64_image:
+                response_text = generate_image_response(base64_image, wa_id)
+                response_text = process_text_for_whatsapp(response_text)
 
-            # Preparing and sending the message back to WhatsApp
-            data = get_text_message_input(current_app.config["RECIPIENT_WAID"], response_text)
-            send_message(data)
+                # Preparing and sending the message back to WhatsApp
+                data = get_text_message_input(current_app.config["RECIPIENT_WAID"], response_text)
+                send_message(data)
+            else:
+                logging.error("Failed to encode image.")
         else:
             logging.error("Image URL could not be retrieved.")
     else:
