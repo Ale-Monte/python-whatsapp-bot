@@ -6,7 +6,7 @@ from app.services.modules.recomendacion_grafos import recommend_products_for
 from app.services.modules.get_financial_metric import get_financial_metric
 from app.services.modules.send_income_statement import get_income_statement_link
 from app.services.modules.predict_sales import forecast_sales, predict_inventory_depletion
-from app.services.modules.inventory_management import calculate_inventory_metrics
+from app.services.modules.inventory_management import set_lead_time, calculate_inventory_metrics
 from app.services.modules.confirm_ticket import update_tickets_csv
 
 
@@ -165,8 +165,23 @@ inventory_management_functions = [
     {
         "type": "function",
         "function": {
+            "name": "set_lead_time",
+            "description": "Sets the lead time for a specified product and stores it in a database. Always prompt the user if they want to calculate the EOQ and ROP again after setting the lead time.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "product_name": {"type": "string", "description": "The name of the product for which the lead time is being set."},
+                    "lead_time": {"type": "integer", "description": "The lead time in days to be set for the product."}
+                },
+                "required": ["product_name", "lead_time"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
             "name": "calculate_inventory_metrics",
-            "description": "Calculate the Economic Order Quantity (EOQ) and reorder point (ROP) for a specified product to determine how much to buy and when to buy it. Tell the user you used EOQ and ROP.",
+            "description": "Calculate the Economic Order Quantity (EOQ) and reorder point (ROP) for a specified product to determine how much to buy and when to buy it. Tell the user you used EOQ and ROP. If no lead time is found, ask the user to enter the lead time and in a short sentence explain what the lead time is.",
             "parameters": {
                 "type": "object",
                 "properties": {
@@ -175,7 +190,7 @@ inventory_management_functions = [
                 "required": ["product_name"]
             }
         }
-    }
+    }    
 ]
 
 confirm_ticket_functions = [
@@ -281,6 +296,7 @@ predict_sales_functions_dict = {
 }
 
 inventory_management_functions_dict = {
+    "set_lead_time": set_lead_time,
     "calculate_inventory_metrics": calculate_inventory_metrics
 }
 

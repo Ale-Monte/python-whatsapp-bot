@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 import os
+import shelve
 from azure.storage.blob import BlobServiceClient
 from dotenv import find_dotenv, load_dotenv
 
@@ -33,6 +34,22 @@ def load_data_from_azure(account_name, container_name, blob_name, sas_token):
         return None
 
 
+def get_lead_time(product_name):
+    with shelve.open('lead_time_shelf') as db:
+        if product_name in db:
+            return db[product_name]
+        else:
+            return None
+
+def set_lead_time(product_name, lead_time):
+    try:
+        with shelve.open('lead_time_shelf') as db:
+            db[product_name] = lead_time
+        return "¡Se registró exitosamente el tiempo de entrega! ¿Gustas volver a calcular la cantidad y el punto de reorden?"
+    except Exception as e:
+        return f"Ocurrió un error guardando el tiempo de entrega: {e}"
+
+
 def calculate_inventory_metrics(product_name):
     try:
         # Load the data frame from Excel
@@ -49,8 +66,11 @@ def calculate_inventory_metrics(product_name):
         # Extract the actual product name from the first matched entry
         actual_product_name = df.iloc[0]['product']
 
+        lead_time = get_lead_time(actual_product_name)
+        if lead_time is None:
+            return f"No se encontró tiempo de entrega para {actual_product_name} (El tiempo de entrega es el tiempo que tarda en llegar el producto desde que se ordena). Por favor, ingrese el tiempo de entrega en días de {actual_product_name}:"
+
         # Constants
-        lead_time = 2
         interest_rate = 0.115
 
         # Exclude zero values and calculate mean cost per unit
