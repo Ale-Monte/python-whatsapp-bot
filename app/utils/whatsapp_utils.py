@@ -3,8 +3,6 @@ from flask import current_app, jsonify
 import json
 import requests
 import re
-import os
-import base64
 from app.services.basic_assistant import generate_response
 from app.services.image_assistant import generate_image_response
 
@@ -69,7 +67,7 @@ def get_media_url(media_id):
         return None
 
 
-def download_and_encode_image(image_url, image_id):
+def download_image(image_url, image_id):
     path_to_save = f"{image_id}.jpg"  # Temporary file path
 
     headers = {
@@ -82,15 +80,7 @@ def download_and_encode_image(image_url, image_id):
         with open(path_to_save, 'wb') as f:
             for chunk in response.iter_content(chunk_size=8192):
                 f.write(chunk)
-
-        # Once the download is complete, encode the image
-        try:
-            with open(path_to_save, "rb") as image_file:
-                base64_image = base64.b64encode(image_file.read()).decode('utf-8')
-            return base64_image
-        finally:
-            # Delete the image after encoding to clean up
-            os.remove(path_to_save)
+        return path_to_save
     else:
         logging.error(f"Failed to download the image: {response.text}")
         return None
@@ -138,16 +128,16 @@ def process_image_message(body):
     if image_id:
         image_url = get_media_url(image_id)  # Assume get_media_url returns the URL and MIME type
         if image_url:
-            base64_image = download_and_encode_image(image_url, image_id)
-            if base64_image:
-                response_text = generate_image_response(base64_image, wa_id)
+            image_path = download_image(image_url, image_id)
+            if image_path:
+                response_text = generate_image_response(image_path, wa_id)
                 response_text = process_text_for_whatsapp(response_text)
 
                 # Preparing and sending the message back to WhatsApp
                 data = get_text_message_input(current_app.config["RECIPIENT_WAID"], response_text)
                 send_message(data)
             else:
-                logging.error("Failed to encode image.")
+                logging.error("Failed to download image.")
         else:
             logging.error("Image URL could not be retrieved.")
     else:
