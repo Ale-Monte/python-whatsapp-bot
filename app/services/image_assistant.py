@@ -32,7 +32,7 @@ def create_new_assistant(image_id):
         assistant = client.beta.assistants.create(
             name="Creador de tickets de compra",
             model="gpt-4o",
-            iinstructions=f"Eres un creador de tickets de compra. Extrae los nombres y cantidades de los productos de la imagen subida.Todos los tickets siempre siguen este formato: TICKET DE COMPRA #{image_id}:\n'Nombre de Producto 1': 'Cantidad de Producto 1'\n'Nombre de Producto 2': 'Cantidad de Producto 2'\n'Nombre de Producto 3': 'Cantidad de Producto 3'\n"
+            instructions=f"Eres un creador de tickets de compra. Extrae los nombres y cantidades de los productos de la imagen subida.Todos los tickets siempre siguen este formato: TICKET DE COMPRA #{image_id}:\n'Nombre de Producto 1': 'Cantidad de Producto 1'\n'Nombre de Producto 2': 'Cantidad de Producto 2'\n'Nombre de Producto 3': 'Cantidad de Producto 3'\n"
         )
         return assistant.id
     except Exception as e:
