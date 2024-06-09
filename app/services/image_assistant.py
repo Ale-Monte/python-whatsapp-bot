@@ -10,9 +10,8 @@ load_dotenv(find_dotenv())
 OPENAI_API_KEY = os.environ["OPENAI_API_KEY"]
 client = OpenAI(api_key=OPENAI_API_KEY)
 
-# Logging and Shelve configuration
+# Logging configuration
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-threads_db = shelve.open("threads_db")  # Use the same database for threads
 
 
 def upload_image_to_openai(image_path):
@@ -43,11 +42,12 @@ def create_new_assistant():
 
 def get_or_create_thread(user_id):
     try:
-        thread_id = threads_db.get(user_id)
-        if not thread_id:
-            thread = client.beta.threads.create()
-            threads_db[user_id] = thread.id
-            thread_id = thread.id
+        with shelve.open("threads_db", writeback=True) as threads_shelf:
+            thread_id = threads_shelf.get(user_id)
+            if not thread_id:
+                thread = client.beta.threads.create()
+                threads_shelf[user_id] = thread.id
+                thread_id = thread.id
         return thread_id
     except Exception as e:
         logging.error(f"Error accessing or creating the thread: {e}")
@@ -93,3 +93,4 @@ def generate_image_response(image_path, user_id):
     except Exception as e:
         logging.error(f"An error occurred: {e}")
         return f"An error occurred: {e}"
+    
