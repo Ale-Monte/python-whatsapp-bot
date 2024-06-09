@@ -26,13 +26,13 @@ def upload_image_to_openai(image_path):
         return None
 
 
-def create_new_assistant():
+def create_new_assistant(image_id):
     try:
         # Create a new assistant each time
         assistant = client.beta.assistants.create(
-            name="Asistente de Análisis de Imágenes",
+            name="Creador de tickets de compra",
             model="gpt-4o",
-            instructions="Analiza imágenes y proporciona información sobre ellas. Eres breve y muy conciso. Menciona solo lo esencial de la imagen. Se amable."
+            iinstructions=f"Eres un creador de tickets de compra. Extrae los nombres y cantidades de los productos de la imagen subida.Todos los tickets siempre siguen este formato: TICKET DE COMPRA #{image_id}:\n'Nombre de Producto 1': 'Cantidad de Producto 1'\n'Nombre de Producto 2': 'Cantidad de Producto 2'\n'Nombre de Producto 3': 'Cantidad de Producto 3'\n"
         )
         return assistant.id
     except Exception as e:
@@ -40,13 +40,13 @@ def create_new_assistant():
         return None
 
 
-def get_or_create_thread(user_id):
+def get_or_create_thread(wa_id):
     try:
         with shelve.open("threads_db", writeback=True) as threads_shelf:
-            thread_id = threads_shelf.get(user_id)
+            thread_id = threads_shelf.get(wa_id)
             if not thread_id:
                 thread = client.beta.threads.create()
-                threads_shelf[user_id] = thread.id
+                threads_shelf[wa_id] = thread.id
                 thread_id = thread.id
         return thread_id
     except Exception as e:
@@ -54,21 +54,21 @@ def get_or_create_thread(user_id):
         return None
 
 
-def generate_image_response(image_path, user_id):
+def generate_image_response(image_path, wa_id, image_id):
     try:
         file_id = upload_image_to_openai(image_path)
         if not file_id:
             return "Error uploading the image"
 
-        thread_id = get_or_create_thread(user_id)
-        assistant_id = create_new_assistant()
+        thread_id = get_or_create_thread(wa_id)
+        assistant_id = create_new_assistant(image_id)
 
         # First, send the image as part of the user's message
         client.beta.threads.messages.create(
             thread_id=thread_id,
             role="user",
             content=[
-                {"type": "text", "text": "¿Qué hay en esta imagen?"},
+                {"type": "text", "text": f"Crea un ticket de compra basado en la imagen que te proporciono. Sigue el formato que conoces. TICKET DE COMPRA #{image_id}"},
                 {
                     "type": "image_file",
                     "image_file": {"file_id": file_id}

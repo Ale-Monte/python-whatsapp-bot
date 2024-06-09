@@ -130,7 +130,7 @@ def process_image_message(body):
         if image_url:
             image_path = download_image(image_url, image_id)
             if image_path:
-                response_text = generate_image_response(image_path, wa_id)
+                response_text = generate_image_response(image_path, wa_id, image_id)
                 response_text = process_text_for_whatsapp(response_text)
 
                 # Preparing and sending the message back to WhatsApp
