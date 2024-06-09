@@ -7,6 +7,7 @@ from app.services.modules.get_financial_metric import get_financial_metric
 from app.services.modules.send_income_statement import get_income_statement_link
 from app.services.modules.predict_sales import forecast_sales, predict_inventory_depletion
 from app.services.modules.inventory_management import calculate_inventory_metrics
+from app.services.modules.confirm_ticket import update_tickets_csv
 
 
 google_calendar_functions = [
@@ -177,6 +178,23 @@ inventory_management_functions = [
     }
 ]
 
+confirm_ticket_functions = [
+    {
+        "type": "function",
+        "function": {
+            "name": "update_tickets_csv",
+            "description": "Updates the sales tickets CSV file when ticket information is confirmed.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "input_string": {"type": "string", "description": "The sales ticket information string. The format is always: TICKET DE COMPRA #<ticket_number>:\n'Product Name 1': 'Product Quantity 1'\n'Product Name 2': 'Product Quantity 2'\n'Product Name 3': 'Product Quantity 3'"}
+                },
+                "required": ["input_string"]
+            }
+        }
+    }
+]
+
 spotify_functions = [
     {
         "type": "function",
@@ -266,6 +284,10 @@ inventory_management_functions_dict = {
     "calculate_inventory_metrics": calculate_inventory_metrics
 }
 
+confirm_ticket_functions_dict = {
+    "update_tickets_csv": update_tickets_csv
+}
+
 spotify_functions_dict = {
     "play_spotify_selection": play_spotify_selection,
     "control_playback": control_playback,
@@ -276,5 +298,5 @@ clock_functions_dict = {
     "get_current_time": get_current_time
 }
 
-assistant_functions = google_calendar_functions + unit_price_functions + recommendation_functions + get_financial_metric_functions + send_income_statement_functions + predict_sales_functions + inventory_management_functions + spotify_functions + clock_functions
-available_functions_dict = google_calendar_functions_dict | unit_price_functions_dict |  recommendation_functions_dict | get_financial_metric_functions_dict | send_income_statement_functions_dict | predict_sales_functions_dict | inventory_management_functions_dict | spotify_functions_dict | clock_functions_dict
+assistant_functions = google_calendar_functions + unit_price_functions + recommendation_functions + get_financial_metric_functions + send_income_statement_functions + predict_sales_functions + inventory_management_functions + confirm_ticket_functions + spotify_functions + clock_functions
+available_functions_dict = google_calendar_functions_dict | unit_price_functions_dict |  recommendation_functions_dict | get_financial_metric_functions_dict | send_income_statement_functions_dict | predict_sales_functions_dict | inventory_management_functions_dict | confirm_ticket_functions_dict | spotify_functions_dict | clock_functions_dict

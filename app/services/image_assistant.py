@@ -32,7 +32,7 @@ def create_new_assistant(image_id):
         assistant = client.beta.assistants.create(
             name="Creador de tickets de compra",
             model="gpt-4o",
-            instructions=f"Eres un creador de tickets de compra. Extrae los nombres y cantidades de los productos de la imagen subida.Todos los tickets siempre siguen este formato: TICKET DE COMPRA #{image_id}:\n'Nombre de Producto 1': 'Cantidad de Producto 1'\n'Nombre de Producto 2': 'Cantidad de Producto 2'\n'Nombre de Producto 3': 'Cantidad de Producto 3'\n"
+            instructions=f"Eres un creador de tickets de compra. Extrae los nombres y cantidades de los productos de la imagen subida.Todos los tickets siempre siguen este formato: TICKET DE COMPRA #{image_id}:\n'Nombre de Producto 1': 'Cantidad de Producto 1'\n'Nombre de Producto 2': 'Cantidad de Producto 2'\n'Nombre de Producto 3': 'Cantidad de Producto 3'\n¿Quieres confirmar este ticket?"
         )
         return assistant.id
     except Exception as e:
@@ -68,7 +68,7 @@ def generate_image_response(image_path, wa_id, image_id):
             thread_id=thread_id,
             role="user",
             content=[
-                {"type": "text", "text": f"Crea un ticket de compra basado en la imagen que te proporciono. Sigue el formato que conoces. TICKET DE COMPRA #{image_id}"},
+                {"type": "text", "text": f"Crea un ticket de compra basado en la imagen que te proporciono. Sigue el formato que conoces. TICKET DE COMPRA #{image_id}. Pregunta si quiero confirmar el ticket"},
                 {
                     "type": "image_file",
                     "image_file": {"file_id": file_id}
@@ -93,4 +93,3 @@ def generate_image_response(image_path, wa_id, image_id):
     except Exception as e:
         logging.error(f"An error occurred: {e}")
         return f"An error occurred: {e}"
-    
