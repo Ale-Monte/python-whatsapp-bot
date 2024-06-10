@@ -166,11 +166,11 @@ inventory_management_functions = [
         "type": "function",
         "function": {
             "name": "set_lead_time",
-            "description": "Sets the lead time for a specified product and stores it in a database. Always prompt the user if they want to calculate the EOQ and ROP again after setting the lead time.",
+            "description": "Saves the lead time for a specified product. Get the product name and lead time from the previous messages (Product name can come in a different message than lead time.). Always prompt the user if they want to calculate the EOQ and ROP again after setting the lead time.",
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "product_name": {"type": "string", "description": "The name of the product for which the lead time is being set."},
+                    "product_name": {"type": "string", "description": "The name of the product for which the lead time is being set. The product name is all lowercase and it can have spaces. For example: 'agua bonafont', 'cerveza victoria'."},
                     "lead_time": {"type": "integer", "description": "The lead time in days to be set for the product."}
                 },
                 "required": ["product_name", "lead_time"]

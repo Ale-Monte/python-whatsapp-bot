@@ -66,7 +66,7 @@ def calculate_inventory_metrics(product_name):
         # Extract the actual product name from the first matched entry
         actual_product_name = df.iloc[0]['product']
 
-        lead_time = get_lead_time(actual_product_name)
+        lead_time = get_lead_time(product_name)
         if lead_time is None:
             return f"No se encontró tiempo de entrega para {actual_product_name} (El tiempo de entrega es el tiempo que tarda en llegar el producto desde que se ordena). Por favor, ingrese el tiempo de entrega en días de {actual_product_name}:"
 
@@ -104,6 +104,6 @@ def calculate_inventory_metrics(product_name):
         # Calculate Reorder Point
         rop = round((sales_average * lead_time) + safety_stock, 0)
         
-        return f"Cantidad a comprar (EOQ) para {actual_product_name}: {eoq} unidades, Nivel de reorden (ROP): {rop} unidades"
+        return f"Cantidad a comprar (EOQ) para {actual_product_name}: {eoq} unidades, Nivel de reorden (ROP): {rop} unidades. Preguntale al usuario si quiere saber que día se alcanzará el nivel de reorden."
     except Exception as e:
-        return f"An error occurred: {str(e)}"
+        return f"Ocurrió un error calculando el EOQ o ROP: {str(e)}"
