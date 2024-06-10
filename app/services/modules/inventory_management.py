@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import os
 import shelve
+import logging
 from azure.storage.blob import BlobServiceClient
 from dotenv import find_dotenv, load_dotenv
 
@@ -14,6 +15,7 @@ container_name = "data"
 blob_name_load = "Abarrotes Cruz.xlsx"
 sas_token = SAS_TOKEN
 
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 def load_data_from_azure(account_name, container_name, blob_name, sas_token):
     try:
@@ -35,18 +37,25 @@ def load_data_from_azure(account_name, container_name, blob_name, sas_token):
 
 
 def get_lead_time(product_name):
-    with shelve.open('lead_time_shelf') as db:
-        if product_name in db:
-            return db[product_name]
-        else:
-            return None
+    try:
+        logging.info(f"Retrieving lead time for {product_name}")
+        with shelve.open('lead_time_shelf') as db:
+            lead_time = db.get(product_name)
+            logging.info(f"Lead time for {product_name} is {lead_time}")
+            return lead_time
+    except Exception as e:
+        logging.error(f"Error retrieving lead time for {product_name}: {e}")
+        return None
 
 def set_lead_time(product_name, lead_time):
     try:
+        logging.info(f"Setting lead time for {product_name} to {lead_time} days")
         with shelve.open('lead_time_shelf') as db:
             db[product_name] = lead_time
+        logging.info(f"Lead time for {product_name} set successfully")
         return "¡Se registró exitosamente el tiempo de entrega! ¿Gustas volver a calcular la cantidad y el punto de reorden?"
     except Exception as e:
+        logging.error(f"Error setting lead time for {product_name}: {e}")
         return f"Ocurrió un error guardando el tiempo de entrega: {e}"
 
 

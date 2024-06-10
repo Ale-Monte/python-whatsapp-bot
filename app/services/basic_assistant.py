@@ -120,6 +120,7 @@ def run_assistant(message_body, thread_id):
         )
         logging.info(f"Assistant run initiated for thread {thread_id}.")
         while run.status not in ['completed', 'requires_action']:
+            logging.info(f"Run status: {run.status}, sleeping for 1 second.")
             time.sleep(0.5)
             run = client.beta.threads.runs.retrieve(thread_id=thread_id, run_id=run.id)
             logging.info(f"Run status: {run.status}")
@@ -127,15 +128,18 @@ def run_assistant(message_body, thread_id):
             logging.info("Handling required actions for the assistant run.")
             tool_calls = run.required_action.submit_tool_outputs.tool_calls
             tool_outputs = handle_tool_calls(tool_calls)
+            logging.info(f"Submitting tool outputs: {tool_outputs}")
             client.beta.threads.runs.submit_tool_outputs(
                 thread_id=thread_id,
                 run_id=run.id,
                 tool_outputs=tool_outputs
             )
         while run.status != 'completed':
+            logging.info(f"Run status: {run.status}, sleeping for 1 second.")
             time.sleep(0.5)
             run = client.beta.threads.runs.retrieve(thread_id=thread_id, run_id=run.id)
 
+        logging.info("Retrieving messages from the thread.")
         messages = client.beta.threads.messages.list(thread_id=thread_id)
         new_message = messages.data[0].content[0].text.value
         logging.info(f"Generated message: {new_message}")
@@ -160,6 +164,3 @@ def generate_response(message_body, wa_id):
             return "Failed to initiate conversation."
 
     return run_assistant(message_body, thread_id)
-
-
-print(generate_response('Hola como estas?', '1'))
