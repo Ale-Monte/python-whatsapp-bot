@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 import os
-import shelve
+import json
 import logging
 from azure.storage.blob import BlobServiceClient
 from dotenv import find_dotenv, load_dotenv
@@ -36,22 +36,36 @@ def load_data_from_azure(account_name, container_name, blob_name, sas_token):
         return None
 
 
+JSON_FILE_PATH = 'lead_times.json'
+def ensure_json_file_exists():
+    """Ensure the JSON file exists and initialize it if it doesn't."""
+    if not os.path.exists(JSON_FILE_PATH):
+        with open(JSON_FILE_PATH, 'w') as file:
+            json.dump({}, file)
+
 def get_lead_time(product_name):
     try:
-        # Validate input
-        if not isinstance(product_name, str) or not product_name:
-            return "Invalid product name. It must be a non-empty string."
-        
-        # Open the shelf file
-        with shelve.open("product_lead_times.db") as db:
-            # Retrieve the lead time for the given product name
-            if product_name in db:
-                lead_time = db[product_name]
-                return lead_time
-            else:
-                return None
+        logging.info(f"Retrieving lead time for {product_name}")
+
+        # Ensure the JSON file exists
+        ensure_json_file_exists()
+
+        # Load existing data
+        with open(JSON_FILE_PATH, 'r') as file:
+            lead_times = json.load(file)
+
+        # Retrieve the lead time for the given product name
+        lead_time = lead_times.get(product_name)
+
+        if lead_time is not None:
+            logging.info(f"Lead time for {product_name} is {lead_time} days")
+            return lead_time
+        else:
+            logging.warning(f"Lead time for {product_name} not found")
+            return None
     
     except Exception as e:
+        logging.error(f"An unexpected error occurred: {e}")
         return f"An error occurred: {e}"
 
 
