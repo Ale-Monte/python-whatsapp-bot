@@ -36,39 +36,6 @@ def load_data_from_azure(account_name, container_name, blob_name, sas_token):
         return None
 
 
-JSON_FILE_PATH = 'lead_times.json'
-def ensure_json_file_exists():
-    """Ensure the JSON file exists and initialize it if it doesn't."""
-    if not os.path.exists(JSON_FILE_PATH):
-        with open(JSON_FILE_PATH, 'w') as file:
-            json.dump({}, file)
-
-def get_lead_time(product_name):
-    try:
-        logging.info(f"Retrieving lead time for {product_name}")
-
-        # Ensure the JSON file exists
-        ensure_json_file_exists()
-
-        # Load existing data
-        with open(JSON_FILE_PATH, 'r') as file:
-            lead_times = json.load(file)
-
-        # Retrieve the lead time for the given product name
-        lead_time = lead_times.get(product_name)
-
-        if lead_time is not None:
-            logging.info(f"Lead time for {product_name} is {lead_time} days")
-            return lead_time
-        else:
-            logging.warning(f"Lead time for {product_name} not found")
-            return None
-    
-    except Exception as e:
-        logging.error(f"An unexpected error occurred: {e}")
-        return f"An error occurred: {e}"
-
-
 def calculate_inventory_metrics(product_name):
     try:
         # Load the data frame from Excel
@@ -85,7 +52,7 @@ def calculate_inventory_metrics(product_name):
         # Extract the actual product name from the first matched entry
         actual_product_name = df.iloc[0]['product']
 
-        lead_time = get_lead_time(product_name)
+        lead_time = 2
         if lead_time is None:
             return f"No se encontró tiempo de entrega para {actual_product_name} (El tiempo de entrega es el tiempo que tarda en llegar el producto desde que se ordena). Por favor, ingrese el tiempo de entrega en días de {actual_product_name}:"
 
