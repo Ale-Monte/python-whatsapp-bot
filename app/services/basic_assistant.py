@@ -119,7 +119,6 @@ def run_assistant(message_body, thread_id):
             assistant_id=assistant_id,
         )
         logging.info(f"Assistant run initiated for thread {thread_id}.")
-        start_time = time.time()
         while run.status not in ['completed', 'requires_action']:
             logging.info(f"Run status: {run.status}, sleeping for 1 second.")
             time.sleep(0.5)
@@ -135,14 +134,6 @@ def run_assistant(message_body, thread_id):
                 run_id=run.id,
                 tool_outputs=tool_outputs
             )
-            time.sleep(1)
-            run = client.beta.threads.runs.retrieve(thread_id=thread_id, run_id=run.id)
-            if run.status == 'requires_action':
-                logging.warning("Additional required actions detected. Handling again.")
-
-            if time.time() - start_time > 58:  # 1 minutes timeout
-                logging.error("Timeout: Assistant run did not complete required actions within 5 minutes.")
-                return "An error occurred due to timeout."
         while run.status != 'completed':
             logging.info(f"Run status: {run.status}, sleeping for 1 second.")
             time.sleep(0.5)

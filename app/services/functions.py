@@ -6,8 +6,9 @@ from app.services.modules.recomendacion_grafos import recommend_products_for
 from app.services.modules.get_financial_metric import get_financial_metric
 from app.services.modules.send_income_statement import get_income_statement_link
 from app.services.modules.predict_sales import forecast_sales, predict_inventory_depletion
-from app.services.modules.inventory_management import set_lead_time, calculate_inventory_metrics
+from app.services.modules.inventory_management import calculate_inventory_metrics
 from app.services.modules.confirm_ticket import update_tickets_csv
+from app.services.modules.lead_time import save_lead_time
 
 
 google_calendar_functions = [
@@ -165,21 +166,6 @@ inventory_management_functions = [
     {
         "type": "function",
         "function": {
-            "name": "set_lead_time",
-            "description": "Saves the lead time for a specified product. Get the product name and lead time from the previous messages (Product name can come in a different message than lead time.). Always prompt the user if they want to calculate the EOQ and ROP again after setting the lead time.",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "product_name": {"type": "string", "description": "The name of the product for which the lead time is being set. The product name is all lowercase and it can have spaces. For example: 'agua bonafont', 'cerveza victoria'."},
-                    "lead_time": {"type": "integer", "description": "The lead time in days to be set for the product."}
-                },
-                "required": ["product_name", "lead_time"]
-            }
-        }
-    },
-    {
-        "type": "function",
-        "function": {
             "name": "calculate_inventory_metrics",
             "description": "Calculate the Economic Order Quantity (EOQ) and reorder point (ROP) for a specified product to determine how much to buy and when to buy it. Tell the user you used EOQ and ROP. If no lead time is found, ask the user to enter the lead time and in a short sentence explain what the lead time is.",
             "parameters": {
@@ -191,6 +177,24 @@ inventory_management_functions = [
             }
         }
     }    
+]
+
+lead_time_functions = [
+    {
+        "type": "function",
+        "function": {
+            "name": "save_lead_time",
+            "description": "Sets the lead time for a specified product.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "product_name": {"type": "string", "description": "Product name to set the lead time for."},
+                    "lead_time": {"type": "integer", "description": "Lead time days to set for the product."}
+                },
+                "required": ["product_name", "lead_time"]
+            }
+        }
+    }
 ]
 
 confirm_ticket_functions = [
@@ -296,8 +300,11 @@ predict_sales_functions_dict = {
 }
 
 inventory_management_functions_dict = {
-    "set_lead_time": set_lead_time,
     "calculate_inventory_metrics": calculate_inventory_metrics
+}
+
+lead_time_functions_dict = {
+    "save_lead_time": save_lead_time
 }
 
 confirm_ticket_functions_dict = {
@@ -314,5 +321,5 @@ clock_functions_dict = {
     "get_current_time": get_current_time
 }
 
-assistant_functions = google_calendar_functions + unit_price_functions + recommendation_functions + get_financial_metric_functions + send_income_statement_functions + predict_sales_functions + inventory_management_functions + confirm_ticket_functions + spotify_functions + clock_functions
-available_functions_dict = google_calendar_functions_dict | unit_price_functions_dict |  recommendation_functions_dict | get_financial_metric_functions_dict | send_income_statement_functions_dict | predict_sales_functions_dict | inventory_management_functions_dict | confirm_ticket_functions_dict | spotify_functions_dict | clock_functions_dict
+assistant_functions = google_calendar_functions + unit_price_functions + recommendation_functions + get_financial_metric_functions + send_income_statement_functions + predict_sales_functions + inventory_management_functions + lead_time_functions + confirm_ticket_functions + spotify_functions + clock_functions
+available_functions_dict = google_calendar_functions_dict | unit_price_functions_dict |  recommendation_functions_dict | get_financial_metric_functions_dict | send_income_statement_functions_dict | predict_sales_functions_dict | inventory_management_functions_dict | lead_time_functions_dict | confirm_ticket_functions_dict | spotify_functions_dict | clock_functions_dict

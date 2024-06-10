@@ -38,25 +38,21 @@ def load_data_from_azure(account_name, container_name, blob_name, sas_token):
 
 def get_lead_time(product_name):
     try:
-        logging.info(f"Retrieving lead time for {product_name}")
-        with shelve.open('lead_time_shelf') as db:
-            lead_time = db.get(product_name)
-            logging.info(f"Lead time for {product_name} is {lead_time}")
-            return lead_time
+        # Validate input
+        if not isinstance(product_name, str) or not product_name:
+            return "Invalid product name. It must be a non-empty string."
+        
+        # Open the shelf file
+        with shelve.open("product_lead_times.db") as db:
+            # Retrieve the lead time for the given product name
+            if product_name in db:
+                lead_time = db[product_name]
+                return lead_time
+            else:
+                return None
+    
     except Exception as e:
-        logging.error(f"Error retrieving lead time for {product_name}: {e}")
-        return None
-
-def set_lead_time(product_name, lead_time):
-    try:
-        logging.info(f"Setting lead time for {product_name} to {lead_time} days")
-        with shelve.open('lead_time_shelf') as db:
-            db[product_name] = lead_time
-        logging.info(f"Lead time for {product_name} set successfully")
-        return "¡Se registró exitosamente el tiempo de entrega! ¿Gustas volver a calcular la cantidad y el punto de reorden?"
-    except Exception as e:
-        logging.error(f"Error setting lead time for {product_name}: {e}")
-        return f"Ocurrió un error guardando el tiempo de entrega: {e}"
+        return f"An error occurred: {e}"
 
 
 def calculate_inventory_metrics(product_name):
@@ -116,3 +112,4 @@ def calculate_inventory_metrics(product_name):
         return f"Cantidad a comprar (EOQ) para {actual_product_name}: {eoq} unidades, Nivel de reorden (ROP): {rop} unidades. Preguntale al usuario si quiere saber que día se alcanzará el nivel de reorden."
     except Exception as e:
         return f"Ocurrió un error calculando el EOQ o ROP: {str(e)}"
+    
