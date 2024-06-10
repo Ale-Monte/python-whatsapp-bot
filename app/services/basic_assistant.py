@@ -122,6 +122,7 @@ def run_assistant(message_body, thread_id):
         while run.status not in ['completed', 'requires_action']:
             time.sleep(0.5)
             run = client.beta.threads.runs.retrieve(thread_id=thread_id, run_id=run.id)
+            logging.info(f"Run status: {run.status}")
         if run.status == 'requires_action':
             logging.info("Handling required actions for the assistant run.")
             tool_calls = run.required_action.submit_tool_outputs.tool_calls
@@ -159,3 +160,6 @@ def generate_response(message_body, wa_id):
             return "Failed to initiate conversation."
 
     return run_assistant(message_body, thread_id)
+
+
+print(generate_response('Hola como estas?', '1'))
