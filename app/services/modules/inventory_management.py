@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 import os
-import json
+import shelve
 import logging
 from azure.storage.blob import BlobServiceClient
 from dotenv import find_dotenv, load_dotenv
@@ -36,6 +36,14 @@ def load_data_from_azure(account_name, container_name, blob_name, sas_token):
         return None
 
 
+def get_lead_time(product_name):
+    with shelve.open('lead_time_shelf') as db:
+        if product_name in db:
+            return db[product_name]
+        else:
+            return None
+
+
 def calculate_inventory_metrics(product_name):
     try:
         # Load the data frame from Excel
@@ -52,12 +60,12 @@ def calculate_inventory_metrics(product_name):
         # Extract the actual product name from the first matched entry
         actual_product_name = df.iloc[0]['product']
 
-        lead_time = 2
+        lead_time = get_lead_time(lead_time(product_name))
         if lead_time is None:
             return f"No se encontró tiempo de entrega para {actual_product_name} (El tiempo de entrega es el tiempo que tarda en llegar el producto desde que se ordena). Por favor, ingrese el tiempo de entrega en días de {actual_product_name}:"
 
         # Constants
-        interest_rate = 0.115
+        interest_rate = 0.11 # Interest Rate in Mexico
 
         # Exclude zero values and calculate mean cost per unit
         non_zero_costs = df['cost'][df['cost'] > 0]
@@ -67,7 +75,7 @@ def calculate_inventory_metrics(product_name):
         non_zero_purchases = df['purchases'][df['purchases'] > 0]
         purchase_quantity = non_zero_purchases.mean() if not non_zero_purchases.empty else 0
         
-        ordering_cost = cost_per_unit * purchase_quantity * 0.48
+        ordering_cost = cost_per_unit * purchase_quantity
 
         # Calculate Average Daily Demand
         sales_average = df['sales'].mean()
@@ -75,11 +83,11 @@ def calculate_inventory_metrics(product_name):
         # Calculate Standard Deviation of Sales for Safety Stock
         std_dev_demand = df['sales'].std()
         
-        # Service level for Z-score, e.g., 95% confidence
-        service_level = 1.2  # Approx. Z-score for 95% confidence
+        # Service level for Z-score, e.g., 90% confidence
+        service_level = 1.65
         
         # Calculate Safety Stock
-        safety_stock = 5
+        safety_stock = service_level * std_dev_demand
         
         # Calculate Holding Cost 
         holding_cost_per_unit = cost_per_unit * interest_rate

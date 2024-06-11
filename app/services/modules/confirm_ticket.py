@@ -5,6 +5,7 @@ from openai import OpenAI
 from dotenv import find_dotenv, load_dotenv
 from datetime import datetime
 from azure.storage.blob import BlobServiceClient
+from app.services.modules.products_info import products_info
 
 load_dotenv(find_dotenv())
 SAS_TOKEN = os.environ["SAS_TOKEN"]
@@ -37,15 +38,10 @@ def upload_to_azure_with_sas(file_path, account_name, container_name, blob_name,
         return f"An error occurred: {ex}"
 
 
-products_info = {
-    'Coca Cola Sin Azúcar': {'product_id': 'P001', 'unit_price': 18},
-    'Fiber One Brownies': {'product_id': 'P002', 'unit_price': 57},
-    'Pan Integral Bimbo': {'product_id': 'P003', 'unit_price': 56}
-}
-
+products_info = products_info
 
 # Default values for unknown products
-default_product_id = 'B001'
+default_product_id = 'U001'
 default_unit_price = 10
 
 
@@ -104,7 +100,7 @@ def update_tickets_csv(input_string):
         ticket_value = 0
         for product in data['products']:
             product_name = product['product_name']
-            unit_price = products_info.get(product_name, {'unit_price': default_unit_price})['unit_price']
+            unit_price = products_info.get(product_name, {'unit_price': default_unit_price})['unit_price'] # Gets default unit price value if the product is not found
             ticket_value += unit_price * product['quantity']
 
         # Open the CSV file for writing (append mode)
@@ -131,15 +127,3 @@ def update_tickets_csv(input_string):
         return f"CSV de tickets actualizado con {json_string} en {current_date}"
     except Exception as e:
         return f"An error occurred: {e}"
-
-
-# Example usage
-input_string = """TICKET DE COMPRA #936065591865576:
-'Coca Cola': '1'
-'Fiber One Brownies': '2'
-'Pan Integral Bimbo': '1'
-
-¿Quieres confirmar este ticket?"""
-
-ticket = update_tickets_csv(input_string)
-print(ticket)

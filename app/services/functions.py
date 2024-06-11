@@ -1,5 +1,4 @@
 from app.services.modules.google_calendar import list_events, search_events, add_event
-from app.services.modules.spotify import play_spotify_selection, control_playback, control_volume
 from app.services.modules.unit_price import get_unit_price_of_product
 from app.services.modules.clock import get_current_time
 from app.services.modules.recomendacion_grafos import recommend_products_for
@@ -214,52 +213,6 @@ confirm_ticket_functions = [
     }
 ]
 
-spotify_functions = [
-    {
-        "type": "function",
-        "function": {
-            "name": "play_spotify_selection",
-            "description": "Play a selection on Spotify based on user input.",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "search_query": {"type": "string", "description": "The main search term."},
-                    "search_type": {"type": "string", "description": "The type of content (album, track, or playlist).", "enum": ["album", "track", "playlist"], "default": None},
-                    "artist": {"type": "string", "description": "The artist name.", "default": None},
-                },
-                "required": ["search_query"]
-            }
-        }
-    }, {
-        "type": "function",
-        "function": {
-            "name": "control_playback",
-            "description": "Control playback actions like playing the next track, previous track, pausing, and resuming on Spotify.",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "action": {"type": "string", "description": "The playback action to perform (next, previous, pause, play).","enum": ["next", "previous", "pause", "play"]}
-                },
-                "required": ["action"]
-            }
-        }
-    }, {
-        "type": "function",
-        "function": {
-            "name": "control_volume",
-            "description": "Control the volume on Spotify, including setting, increasing, or decreasing the volume.",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "action": {"type": "string", "description": "The volume action to perform (set, increase, decrease).", "enum": ["set", "increase", "decrease"]},
-                    "volume_change": {"type": "integer", "description": "The volume level to set, or the amount to increase/decrease (from 0 to 100).", "default": None}
-                },
-                "required": ["action"]
-            }
-        }
-    }
-]
-
 clock_functions = [
     {
         "type": "function",
@@ -311,15 +264,9 @@ confirm_ticket_functions_dict = {
     "update_tickets_csv": update_tickets_csv
 }
 
-spotify_functions_dict = {
-    "play_spotify_selection": play_spotify_selection,
-    "control_playback": control_playback,
-    "control_volume": control_volume
-}
-
 clock_functions_dict = { 
     "get_current_time": get_current_time
 }
 
-assistant_functions = google_calendar_functions + unit_price_functions + recommendation_functions + get_financial_metric_functions + send_income_statement_functions + predict_sales_functions + inventory_management_functions + lead_time_functions + confirm_ticket_functions + spotify_functions + clock_functions
-available_functions_dict = google_calendar_functions_dict | unit_price_functions_dict |  recommendation_functions_dict | get_financial_metric_functions_dict | send_income_statement_functions_dict | predict_sales_functions_dict | inventory_management_functions_dict | lead_time_functions_dict | confirm_ticket_functions_dict | spotify_functions_dict | clock_functions_dict
+assistant_functions = google_calendar_functions + unit_price_functions + recommendation_functions + get_financial_metric_functions + send_income_statement_functions + predict_sales_functions + inventory_management_functions + lead_time_functions + confirm_ticket_functions + clock_functions
+available_functions_dict = google_calendar_functions_dict | unit_price_functions_dict |  recommendation_functions_dict | get_financial_metric_functions_dict | send_income_statement_functions_dict | predict_sales_functions_dict | inventory_management_functions_dict | lead_time_functions_dict | confirm_ticket_functions_dict | clock_functions_dict

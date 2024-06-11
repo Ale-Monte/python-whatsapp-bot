@@ -81,7 +81,7 @@ def check_all_products_rop():
 
             lead_time = get_lead_time(product_name)
             if lead_time is None:
-                lead_time = 2
+                pass
 
             interest_rate = 0.115
 
@@ -97,9 +97,9 @@ def check_all_products_rop():
 
             std_dev_demand = product_df['sales'].std()
 
-            service_level = 1.2
+            service_level = 1.65 # Approx. Z-score for 90% confidence
 
-            safety_stock = 5
+            safety_stock = service_level * std_dev_demand
 
             holding_cost_per_unit = cost_per_unit * interest_rate
 
