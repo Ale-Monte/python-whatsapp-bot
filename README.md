@@ -2,40 +2,39 @@
 
 # Set Up Whatsapp API
 
-This guide will walk you through the process of creating a WhatsApp bot using the Meta (formerly Facebook) Cloud API with pure Python, and Flask particularly. We'll also integrate webhook events to receive messages in real-time and use OpenAI to generate AI responses and then deploy it to Microsoft Azure.
+This guide will walk you through the process of deploying a WhatsApp bot using the Meta Cloud API with pure Python, and Flask particularly. The app will also integrate webhook events to receive messages in real-time and use OpenAI to generate AI responses-
 
 ## Prerequisites
 
 1. A Meta developer account — If you don’t have one, you can [create a Meta developer account here](https://developers.facebook.com/).
 2. A business app — If you don't have one, you can [learn to create a business app here](https://developers.facebook.com/docs/development/create-an-app/). If you don't see an option to create a business app, select **Other** > **Next** > **Business**.
-3. Familiarity with Python to follow the tutorial.
 
 ## Table of Contents
 
-- [Build AI WhatsApp Bots with Pure Python](#build-ai-whatsapp-bots-with-pure-python)
+- [Set Up Whatsapp API](#set-up-whatsapp-api)
   - [Prerequisites](#prerequisites)
   - [Table of Contents](#table-of-contents)
   - [Get Started](#get-started)
   - [Step 1: Select Phone Numbers](#step-1-select-phone-numbers)
   - [Step 2: Send Messages with the API](#step-2-send-messages-with-the-api)
   - [Step 3: Configure Webhooks to Receive Messages](#step-3-configure-webhooks-to-receive-messages)
-    - [Start your app](#start-your-app)
-    - [Launch ngrok](#launch-ngrok)
     - [Integrate WhatsApp](#integrate-whatsapp)
     - [Testing the Integration](#testing-the-integration)
   - [Step 4: Understanding Webhook Security](#step-4-understanding-webhook-security)
     - [Verification Requests](#verification-requests)
     - [Validating Verification Requests](#validating-verification-requests)
-    - [Validating Payloads](#validating-payloads)
-  - [Step 5: Learn about the API and Build Your App](#step-5-learn-about-the-api-and-build-your-app)
-  - [Step 6: Integrate AI into the Application](#step-6-integrate-ai-into-the-application)
-  - [Step 7: Add a Phone Number](#step-7-add-a-phone-number)
+- [Deploy Your WhatsApp AI Bot to Azure](#deploy-your-whatsapp-ai-bot-to-azure)
+  - [Introduction](#1-introduction)
+  - [Azure Setup](#2-azure-setup)
+    - [Update the Startup Command in Azure](#21-update-the-startup-command-in-azure)
+    - [Update the Web App Configuration with Keys and Secrets](#22-update-the-web-app-configuration-with-keys-and-secrets)
+  - [Updating the Workflow File](#3-updating-the-workflow-file)a
 
 ## Get Started
 
-1. **Overview & Setup**: Begin your journey [here](https://developers.facebook.com/docs/whatsapp/cloud-api/get-started).
-2. **Locate Your Bots**: Your bots can be found [here](https://developers.facebook.com/apps/).
-3. **WhatsApp API Documentation**: Familiarize yourself with the [official documentation](https://developers.facebook.com/docs/whatsapp).
+1. **Overview & Setup**: Get started with the Meta API [here](https://developers.facebook.com/docs/whatsapp/cloud-api/get-started).
+2. **Locate Your Bots**: The bots can be found [here](https://developers.facebook.com/apps/).
+3. **WhatsApp API Documentation**: [official documentation](https://developers.facebook.com/docs/whatsapp).
 4. **Helpful Guide**: Here's a [Python-based guide](https://developers.facebook.com/blog/post/2022/10/24/sending-messages-with-whatsapp-in-your-python-applications/) for sending messages.
 5. **API Docs for Sending Messages**: Check out [this documentation](https://developers.facebook.com/docs/whatsapp/cloud-api/guides/send-messages).
 
@@ -75,7 +74,7 @@ Now we have to find the following information on the **App Dashboard**:
 
 > You can only send a template type message as your first message to a user. That's why you have to send a reply first before we continue.
 
-# Deploy Your Slack AI Bot to Azure
+# Deploy Your WhatsApp AI Bot to Azure
 
 ## 1. Introduction
 
@@ -85,7 +84,7 @@ In this section we'll deploy a Python-based WhatsApp bot to an Azure Web App! By
 
 In this section, we will guide you through setting up an Azure account and deploying a web app using the Deployment Center. Azure provides a comprehensive platform for deploying and managing your applications in the cloud.
 
-Follow these steps to set up your Azure account and deploy your Slack bot:
+Follow these steps to set up your Azure account and deploy your WhatsApp bot:
 
 1. **Sign up for an Azure account**: If you don't already have an account, sign up for a free Azure account at https://azure.microsoft.com. New users are eligible for a $200 credit, which you can use to explore and experiment with Azure services.
 
@@ -189,7 +188,3 @@ The verify_token, `12345` in the case of this example, is a string that you can 
 Whenever your endpoint receives a verification request, it must:
 
 - Verify that the hub.verify_token value matches the string you set in the Verify Token field when you configure the Webhooks product in your App Dashboard (you haven't set up this token string yet).
-
-## Step 5: Learn about the API and Develop the App
-
-Review the developer documentation to learn how to build the app and start sending messages. [See documentation](https://developers.facebook.com/docs/whatsapp/cloud-api).
