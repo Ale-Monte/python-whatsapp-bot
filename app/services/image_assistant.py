@@ -82,7 +82,7 @@ def generate_image_response(image_path, wa_id, image_id):
             assistant_id=assistant_id,
         )
         while run.status not in ['completed', 'requires_action']:
-            time.sleep(0.5)
+            time.sleep(1)
             run = client.beta.threads.runs.retrieve(thread_id=thread_id, run_id=run.id)
 
         # Retrieve and return the last message from the assistant
