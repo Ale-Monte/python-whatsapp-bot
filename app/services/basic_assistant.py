@@ -119,11 +119,16 @@ def run_assistant(message_body, thread_id):
             assistant_id=assistant_id,
         )
         logging.info(f"Assistant run initiated for thread {thread_id}.")
-        while run.status not in ['completed', 'requires_action']:
+        while run.status not in ['completed', 'requires_action', 'failed']:
             logging.info(f"Run status: {run.status}, sleeping for 1 second.")
             time.sleep(0.5)
             run = client.beta.threads.runs.retrieve(thread_id=thread_id, run_id=run.id)
             logging.info(f"Run status: {run.status}")
+        
+        if run.status == 'failed':
+            logging.error("Run failed, please try again.")
+            return "The assistant encountered an error and could not complete the request. Please try again."
+
         if run.status == 'requires_action':
             logging.info("Handling required actions for the assistant run.")
             tool_calls = run.required_action.submit_tool_outputs.tool_calls
