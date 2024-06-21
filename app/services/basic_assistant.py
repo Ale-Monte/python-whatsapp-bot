@@ -164,3 +164,4 @@ def generate_response(message_body, wa_id):
             return "Failed to initiate conversation."
 
     return run_assistant(message_body, thread_id)
+
