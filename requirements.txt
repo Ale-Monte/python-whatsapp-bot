@@ -14,3 +14,7 @@ networkx
 scipy
 openpyxl
 statsmodels
+pinecone-client
+langchain
+langchain-pinecone
+langchain-openai

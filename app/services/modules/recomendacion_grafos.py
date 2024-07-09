@@ -22,9 +22,9 @@ def load_data_from_azure(storage_account_url, container_name, blob_name, sas_tok
         blob_client = blob_service_client.get_blob_client(container=container_name, blob=blob_name)
         
         # Download the blob to a local memory stream
-        with open("unit_price_temp.csv", "wb") as download_file:
+        with open("dataConsumoEsp.csv", "wb") as download_file:
             download_file.write(blob_client.download_blob().readall())
-        df = pd.read_csv("unit_price_temp.csv")
+        df = pd.read_csv("dataConsumoEsp.csv")
 
         return df
 
@@ -34,22 +34,6 @@ def load_data_from_azure(storage_account_url, container_name, blob_name, sas_tok
         return None
     
 
-transactions = load_data_from_azure(storage_account_url, container_name, blob_name, sas_token)
-# Convert each transaction to a list, excluding NaN values
-transactions_list = transactions.apply(lambda row: [item for item in row if not pd.isna(item)], axis=1)
-
-# Create an undirected graph
-G = nx.Graph()
-
-# Add edges between items within each transaction, incrementing weights for repeated edges
-for transaction in transactions_list:
-    for i in range(len(transaction)):
-        for j in range(i + 1, len(transaction)):
-            if G.has_edge(transaction[i], transaction[j]):
-                G[transaction[i]][transaction[j]]['weight'] += 1
-            else:
-                G.add_edge(transaction[i], transaction[j], weight=1)
-
 def find_product_by_regex(query, graph):
     pattern = re.compile(re.escape(query), re.IGNORECASE)  # Create a case-insensitive regex pattern
     for node in graph.nodes:
@@ -58,6 +42,25 @@ def find_product_by_regex(query, graph):
     return None
 
 def recommend_products_for(query, top_n=5):
+    transactions = load_data_from_azure(storage_account_url, container_name, blob_name, sas_token)
+    if transactions is None:
+        return "Failed to load transactions data."
+
+    # Convert each transaction to a list, excluding NaN values
+    transactions_list = transactions.apply(lambda row: [item for item in row if not pd.isna(item)], axis=1)
+
+    # Create an undirected graph
+    G = nx.Graph()
+
+    # Add edges between items within each transaction, incrementing weights for repeated edges
+    for transaction in transactions_list:
+        for i in range(len(transaction)):
+            for j in range(i + 1, len(transaction)):
+                if G.has_edge(transaction[i], transaction[j]):
+                    G[transaction[i]][transaction[j]]['weight'] += 1
+                else:
+                    G.add_edge(transaction[i], transaction[j], weight=1)
+                    
     product = find_product_by_regex(query, G)
     if not product:
         return f"No matching product found for '{query}'."
