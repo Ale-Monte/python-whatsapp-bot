@@ -4,7 +4,7 @@ import json
 import requests
 import re
 from app.services.basic_assistant import generate_response
-from app.services.image_assistant import generate_image_response
+from app.services.image_assistant import generate_image_response, echo_text
 
 
 def log_http_response(response):
@@ -136,6 +136,8 @@ def process_image_message(body):
                 # Preparing and sending the message back to WhatsApp
                 data = get_text_message_input(current_app.config["RECIPIENT_WAID"], response_text)
                 send_message(data)
+
+                echo_text(response_text, wa_id)
             else:
                 logging.error("Failed to download image.")
         else:

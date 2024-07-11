@@ -193,10 +193,8 @@ def generate_image_response(image_path, wa_id, image_id):
     try:
         sales_ticket = create_sales_ticket(image_path, image_id)
         formatted_ticket = format_ticket(sales_ticket)
-        ticket_message = echo_text(formatted_ticket, wa_id)
-
-        new_message = ticket_message.data[0].content[0].text.value
-        return new_message
+        
+        return formatted_ticket
     except Exception as e:
         logging.error(f"An error occurred in generate_image_response: {e}")
         return f"An error occurred: {e}"
